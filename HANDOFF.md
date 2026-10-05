@@ -41,6 +41,10 @@ Zielgruppe: ältere Person, nutzt es am Handy → große Buttons, gut lesbare Sc
 | `a-<timestamp>` | `{kind:"attack", start:"YYYY-MM-DDTHH:MM", hours:number\|null, pain:1-10, side:string, symptoms:string[], helped:string, note:string}` |
 | `w-YYYY-MM-DD` | `{kind:"water", date:"YYYY-MM-DD", glasses:number}` |
 | `settings` | `{kind:"settings", goalMl:number}` |
+| `plan` | `{kind:"plan", steps:[{id,text}], meds:[{id,name,note}]}` – eigener Kolik-Plan; fehlt er, gilt `DEFAULT_PLAN` |
+| `episode` | `{kind:"episode", start:ms, side, symptoms:[], events:[…]}` – nur solange eine Kolik läuft |
+
+Attack-Einträge, die aus dem Kolik-Modus kommen, haben zusätzlich `log:[{t:ms, type:"pain"\|"med"\|"step"\|"sym"\|"note", v?, text?, step?}]`.
 
 localStorage-Key: `nierenstein-v1` (Objekt ID → Daten); Fragen an den Arzt in `nierenstein-v1-q`.
 Die Speicher-Schicht ist in `initStore()` gekapselt (`backend.set(id, data)` / `backend.del(id)`),
@@ -75,6 +79,18 @@ dort lässt sich ein anderes Backend einhängen.
   - Speicher bleibt bewusst localStorage (reicht für die Datenmenge, kein Umbau nötig).
 - Wichtig: Speicher hängt an der genauen Adresse (Domain + Pfad). Adresse nach dem Launch
   nicht mehr ändern, sonst vorher Sicherung speichern und am neuen Ort laden.
+
+- **Navigation neu:** Leiste unten (Heute · Kolik · Verlauf · Arzt), Routen über `#heute`,
+  `#kolik`, `#verlauf`, `#arzt` → Zurück-Taste am Handy funktioniert. Bugfix: `.panel{display:grid}`
+  hatte das `hidden`-Attribut überschrieben, alle Bereiche waren gleichzeitig sichtbar
+  (jetzt globale Regel `[hidden]{display:none!important}`).
+- **Kolik-Modus:** eigener Plan (Checkliste) + eigene Medikamente mit Notiz (keine Dosierungen).
+  Während der Kolik: Timer, Schmerz 1–10, „Medikament genommen“ mit „zuletzt vor …“, Plan abhaken,
+  Seite/Beschwerden, Notizen, Verlauf mit Entfernen. Doppeltipp innerhalb 3 s wird ignoriert.
+  Läuft eine Kolik, öffnet die App direkt dort; auf anderen Tabs erscheint ein Balken.
+  „Kolik ist vorbei“ → Anfall mit Dauer, stärkstem Schmerz und `log`, Formular öffnet sich zum Ergänzen.
+  Bericht, Druck und CSV zeigen Medikamente mit Uhrzeit, Schmerzverlauf und erledigte Schritte.
+- Verlauf-Tab: Liste oben, Formular „+ Nachtragen“ eingeklappt.
 
 ## Nächste Schritte (Wünsche)
 1. ~~Alles sichern / wiederherstellen~~ erledigt

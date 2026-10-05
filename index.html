@@ -35,15 +35,23 @@
   --water:#5cc2d4; --water-soft:#183a40; --pain:#f08a55; --pain-soft:#3d2418;
   --alert:#ff8a7e; --alert-soft:#3d1c19; --ok:#6fcf91; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
-.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;display:grid;gap:18px}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));display:grid;gap:18px}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
 h1{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
 h2{font-size:1.25rem;font-weight:600}
 .sub{color:var(--muted);margin:4px 0 0}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
-.tabs button{border:0;background:none;color:var(--muted);font:700 .95rem var(--body);padding:10px 4px;border-radius:999px;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+/* bottom navigation: thumb reach, icon + label */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.bottomnav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.bottomnav a{position:relative;display:grid;justify-items:center;align-content:center;gap:2px;min-height:58px;padding:4px 2px;border-radius:14px;color:var(--muted);text-decoration:none;font-weight:700;font-size:.82rem}
+.bottomnav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bottomnav a[aria-current="page"]{color:var(--ink);background:var(--bg)}
+.bottomnav a.colic{color:var(--pain)}
+.bottomnav a.colic[aria-current="page"]{background:var(--pain-soft)}
+.bottomnav a.colic.on::after{content:"";position:absolute;top:6px;right:calc(50% - 22px);width:10px;height:10px;border-radius:50%;background:var(--pain);box-shadow:0 0 0 2px var(--surface)}
+.livebar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--pain);color:#fff;border-radius:var(--r);padding:12px 16px;font-weight:700;text-decoration:none;position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:6}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--water);outline-offset:2px}
 .panel{display:grid;gap:16px}
@@ -58,7 +66,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .glass.full::after{content:"";position:absolute;inset:auto 0 0 0;height:78%;background:var(--water)}
 .glass.goal{border-style:dashed;opacity:.55}
 .row{display:flex;gap:10px;flex-wrap:wrap}
-.btn{border:2px solid var(--ink);background:var(--surface);border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;min-height:52px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;text-decoration:none;color:inherit;border:2px solid var(--ink);background:var(--surface);border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;min-height:52px}
+.btn.big{min-height:64px;font-size:1.15rem;width:100%}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .btn.primary{background:var(--water);border-color:var(--water);color:#fff;flex:1}
 .btn.pain{background:var(--pain);border-color:var(--pain);color:#fff;width:100%}
 .btn.ghost{border-color:var(--line)}
@@ -74,7 +84,7 @@ form{display:grid;gap:16px}
 .field{display:grid;gap:6px;min-width:0}
 .field>span{font-weight:700}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-input[type=datetime-local],input[type=number],textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+input[type=datetime-local],input[type=number],input[type=text],textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
 textarea{min-height:70px;resize:vertical}
 .painval{display:flex;align-items:baseline;gap:10px}
 .painval b{font-family:var(--display);font-size:2rem;color:var(--pain);font-variant-numeric:tabular-nums}
@@ -108,9 +118,36 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:700}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;z-index:10}
+.toast{max-width:calc(100vw - 32px);width:max-content;text-align:center;position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;z-index:10}
 .note{font-size:.85rem;color:var(--muted)}
 .stack{display:grid;gap:10px}
+.cardhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+/* colic mode */
+.elapsed{font-family:var(--display);font-weight:800;font-size:3rem;color:var(--pain);line-height:1;font-variant-numeric:tabular-nums}
+.painpad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.painpad button{min-height:56px;border-radius:12px;border:2px solid var(--line);background:var(--surface);font:800 1.35rem var(--display);cursor:pointer}
+.painpad button[aria-pressed="true"]{background:var(--pain);border-color:var(--pain);color:#fff}
+.medbtn{display:grid;gap:2px;text-align:left;width:100%;border:2px solid var(--water);background:var(--surface);border-radius:12px;padding:12px 16px;cursor:pointer;min-height:64px}
+.medbtn b{font-size:1.1rem}
+.medbtn span{font-size:.88rem;color:var(--muted)}
+.medbtn .last{color:var(--water);font-weight:700}
+.check{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:center;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;cursor:pointer;min-height:58px}
+.check i{width:28px;height:28px;border:2.5px solid var(--muted);border-radius:8px;display:grid;place-items:center;font-style:normal;font-weight:800;color:#fff}
+.check[aria-pressed="true"]{border-color:var(--ok)}
+.check[aria-pressed="true"] i{background:var(--ok);border-color:var(--ok)}
+.check small{display:block;color:var(--ok);font-weight:700;font-size:.85rem}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{display:grid;grid-template-columns:50px 1fr 40px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.timeline li:first-child{border-top:0}
+.timeline time{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+.del:disabled{opacity:.2;cursor:default}
+.del{border:0;background:none;color:var(--muted);font-size:1.4rem;line-height:1;cursor:pointer;width:40px;height:40px;border-radius:8px}
+.editlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.editlist li{display:grid;grid-template-columns:1fr auto auto;gap:2px;align-items:center;background:var(--bg);border-radius:10px;padding:4px 4px 4px 12px}
+.editlist small{display:block;color:var(--muted);font-size:.85rem}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
+.addrow input{flex:1 1 200px}
+details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
 .confirm{background:var(--water-soft);border:1.5px solid var(--water);border-radius:var(--r);padding:14px 16px;display:grid;gap:12px}
 @media (max-width:420px){.two{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.glass.full::after{transition:height .3s}}
@@ -119,7 +156,7 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
 @media print{
   @page{margin:15mm}
   body{background:#fff;color:#000;font-size:11pt;margin:0}
-  .wrap,.toast{display:none!important}
+  .wrap,.toast,.bottomnav{display:none!important}
   #printout{display:block}
   #printout h1{font-size:18pt;margin:0 0 2pt}
   #printout h2{font-size:12.5pt;margin:16pt 0 6pt;border-bottom:1.5pt solid #000;padding-bottom:2pt}
@@ -145,14 +182,10 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
 <div class="wrap">
   <header>
     <h1>Nierenstein-Tagebuch</h1>
-    <p class="sub">Trinken, Anfälle, und alles Wichtige für den nächsten Arzttermin.</p>
+    <p class="sub" id="subtitle">Trinken, Anfälle, und alles Wichtige für den nächsten Arzttermin.</p>
   </header>
 
-  <nav class="tabs" role="tablist">
-    <button role="tab" id="t-today" aria-selected="true" data-tab="today">Heute</button>
-    <button role="tab" id="t-log" aria-selected="false" data-tab="log">Anfälle</button>
-    <button role="tab" id="t-doc" aria-selected="false" data-tab="doc">Für den Arzt</button>
-  </nav>
+  <a class="livebar" id="livebar" href="#kolik" hidden><span id="livebarText">Kolik läuft</span><span aria-hidden="true">Öffnen →</span></a>
 
   <!-- HEUTE -->
   <section class="panel" id="p-today">
@@ -183,9 +216,9 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
       <div class="week" id="week"></div>
     </div>
 
-    <button class="btn pain" id="goLog">Anfall eintragen</button>
+    <a class="btn pain big" href="#kolik" id="goColic">Kolik? Hier starten</a>
 
-    <div class="redflags">
+    <div class="redflags" id="redflags">
       <h3>Sofort ärztliche Hilfe holen bei</h3>
       <ul>
         <li>Kolik zusammen mit Fieber oder Schüttelfrost</li>
@@ -197,10 +230,98 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
     </div>
   </section>
 
-  <!-- ANFÄLLE -->
+  <!-- KOLIK -->
+  <section class="panel" id="p-colic" hidden>
+    <!-- no colic running: start + own plan -->
+    <div class="panel" id="colicIdle">
+      <div class="card">
+        <h2>Kolik beginnt?</h2>
+        <p class="note" style="margin:0">Auf Start tippen. Die App merkt sich die Uhrzeit und zeigt deinen Plan. Schmerz, Medikamente und alles andere dann einfach antippen.</p>
+        <button class="btn pain big" id="startColic">Kolik starten</button>
+        <details>
+          <summary>Hat schon früher angefangen?</summary>
+          <label class="field"><span>Beginn</span><input type="datetime-local" id="startAt"></label>
+        </details>
+      </div>
+      <div class="card">
+        <h2>Mein Plan bei einer Kolik</h2>
+        <p class="note" style="margin:0">Schritte, die du während einer Kolik abhaken willst. Am besten mit dem Arzt absprechen.</p>
+        <ol class="editlist" id="planEdit"></ol>
+        <form class="addrow" id="addStep">
+          <input type="text" id="newStep" maxlength="120" placeholder="Neuer Schritt, z. B. Wärmflasche" aria-label="Neuer Schritt">
+          <button class="btn">Hinzufügen</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Meine Medikamente</h2>
+        <p class="note" style="margin:0">Name und was der Arzt dazu gesagt hat. Die App gibt keine Dosierungen vor.</p>
+        <ul class="editlist" id="medEdit"></ul>
+        <form class="stack" id="addMed">
+          <input type="text" id="newMed" maxlength="80" placeholder="Name des Medikaments" aria-label="Name des Medikaments">
+          <input type="text" id="newMedNote" maxlength="160" placeholder="Notiz, z. B. was der Arzt gesagt hat (optional)" aria-label="Notiz zum Medikament">
+          <button class="btn">Medikament hinzufügen</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- colic running -->
+    <div class="panel" id="colicLive" hidden>
+      <div class="card">
+        <div class="label">Kolik läuft seit</div>
+        <div class="elapsed" id="elapsed">0:00 h</div>
+        <div class="note" id="startedAt"></div>
+      </div>
+      <div class="card">
+        <h2>Wie stark ist der Schmerz jetzt?</h2>
+        <div class="painpad" id="painPad"></div>
+        <p class="note" style="margin:0" id="lastPain">Immer wieder antippen, wenn sich etwas ändert.</p>
+      </div>
+      <div class="card">
+        <h2>Medikament genommen</h2>
+        <div class="stack" id="medButtons"></div>
+        <form class="addrow" id="otherMed">
+          <input type="text" id="otherMedText" maxlength="80" placeholder="Etwas anderes genommen …" aria-label="Anderes Medikament">
+          <button class="btn">Eintragen</button>
+        </form>
+        <p class="note" style="margin:0">Nur so einnehmen, wie es mit dem Arzt besprochen ist.</p>
+      </div>
+      <div class="card">
+        <h2>Mein Plan</h2>
+        <div class="stack" id="planCheck"></div>
+      </div>
+      <div class="card">
+        <h2>Was kommt dazu?</h2>
+        <div class="chips" id="liveSide"></div>
+        <div class="chips" id="liveSym"></div>
+        <div class="warn" id="liveFever" hidden><strong>Fieber oder Schüttelfrost bei einer Kolik</strong> kann auf eine Infektion hinter dem Stein hindeuten. Bitte heute noch ärztlich abklären lassen oder 1450 anrufen, bei schlechtem Zustand 144.</div>
+      </div>
+      <div class="card">
+        <h2>Notiz</h2>
+        <form class="addrow" id="liveNote">
+          <input type="text" id="liveNoteText" maxlength="300" placeholder="z. B. Stein abgegangen, erbrochen …" aria-label="Notiz">
+          <button class="btn">Eintragen</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Verlauf dieser Kolik</h2>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+      <div id="redflagsLive"></div>
+      <button class="btn ok big" id="endColic">Kolik ist vorbei</button>
+      <button class="btn ghost" id="discardColic">Versehentlich gestartet – verwerfen</button>
+    </div>
+  </section>
+
+  <!-- VERLAUF -->
   <section class="panel" id="p-log" hidden>
     <div class="card">
-      <h2 id="formTitle">Neuer Anfall</h2>
+      <div class="cardhead"><h2>Bisherige Anfälle</h2><button class="btn small" id="addAttack">+ Nachtragen</button></div>
+      <div id="list"><p class="empty">Noch keine Anfälle eingetragen.</p></div>
+    </div>
+
+    <div class="card" id="formCard" hidden>
+      <h2 id="formTitle">Anfall nachtragen</h2>
+      <p class="note" id="formHint" style="margin:0" hidden>Aus der Kolik übernommen. Bitte noch ergänzen, was geholfen hat, und dann speichern.</p>
       <form id="form">
         <div class="two">
           <label class="field"><span>Beginn</span><input type="datetime-local" id="f-start" required></label>
@@ -229,14 +350,9 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
         <label class="field"><span>Notizen</span><textarea id="f-note" placeholder="Wenig getrunken? Besonderes gegessen? Stein abgegangen?"></textarea></label>
         <div class="row">
           <button class="btn primary" type="submit" id="saveBtn">Anfall speichern</button>
-          <button class="btn ghost" type="button" id="cancelEdit" hidden>Abbrechen</button>
+          <button class="btn ghost" type="button" id="cancelEdit">Abbrechen</button>
         </div>
       </form>
-    </div>
-
-    <div class="card">
-      <h2>Bisherige Anfälle</h2>
-      <div id="list"><p class="empty">Noch keine Anfälle eingetragen. Nach dem nächsten Anfall hier oben ausfüllen, das dauert eine Minute.</p></div>
     </div>
   </section>
 
@@ -288,6 +404,12 @@ input[type=range]{width:100%;accent-color:var(--pain);height:32px}
     </div>
   </section>
 </div>
+<nav class="bottomnav" aria-label="Bereiche"><div>
+  <a href="#heute" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3z"/></svg>Heute</a>
+  <a href="#kolik" data-tab="colic" class="colic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Kolik</a>
+  <a href="#verlauf" data-tab="log"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Verlauf</a>
+  <a href="#arzt" data-tab="doc"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M12 8v6M9 17h6"/></svg>Arzt</a>
+</div></nav>
 <div class="toast" id="toast" hidden></div>
 <section id="printout" aria-hidden="true"></section>
 
@@ -299,7 +421,12 @@ const GLASS=250;
 const $=s=>document.querySelector(s);
 const pad=n=>String(n).padStart(2,"0");
 const dayKey=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-const nowLocal=()=>{const d=new Date();return dayKey(d)+"T"+pad(d.getHours())+":"+pad(d.getMinutes())};
+const hhmm=ms=>{const d=new Date(ms);return pad(d.getHours())+":"+pad(d.getMinutes())};
+const localISO=ms=>dayKey(new Date(ms))+"T"+hhmm(ms);
+const nowLocal=()=>localISO(Date.now());
+const dur=ms=>{const m=Math.max(0,Math.floor(ms/60000));return Math.floor(m/60)+":"+pad(m%60)+" h"};
+const ago=ms=>{const m=Math.round((Date.now()-ms)/60000);return m<1?"gerade eben":m<60?`vor ${m} min`:`vor ${Math.floor(m/60)} h ${m%60} min`};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const fmtL=ml=>(ml/1000).toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtDate=s=>{const d=new Date(s);return d.toLocaleDateString("de-AT",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+", "+pad(d.getHours())+":"+pad(d.getMinutes())+" Uhr"};
 const fmtH=h=>h==null||h===""?"–":(Number(h).toLocaleString("de-AT",{maximumFractionDigits:1})+" h");
@@ -376,8 +503,19 @@ symWrap.onchange=()=>{$("#feverWarn").hidden=![...symWrap.querySelectorAll("inpu
 let editing=null;
 function resetForm(){
   editing=null;$("#form").reset();$("#f-start").value=nowLocal();painEl.value=6;updPain();
-  $("#feverWarn").hidden=true;$("#formTitle").textContent="Neuer Anfall";$("#saveBtn").textContent="Anfall speichern";$("#cancelEdit").hidden=true;
+  $("#feverWarn").hidden=true;$("#formTitle").textContent="Anfall nachtragen";$("#saveBtn").textContent="Anfall speichern";
+  $("#formHint").hidden=true;$("#formCard").hidden=true;
 }
+function openForm(){$("#formCard").hidden=false;$("#formCard").scrollIntoView({behavior:"smooth",block:"start"})}
+function openEdit(id,a,fromColic){
+  editing=id;$("#f-start").value=a.start;$("#f-hours").value=a.hours??"";painEl.value=a.pain;updPain();
+  document.querySelectorAll("input[name=side]").forEach(r=>r.checked=r.value===a.side);
+  symWrap.querySelectorAll("input").forEach(c=>c.checked=(a.symptoms||[]).includes(c.value));symWrap.onchange();
+  $("#f-helped").value=a.helped||"";$("#f-note").value=a.note||"";
+  $("#formTitle").textContent="Anfall bearbeiten";$("#saveBtn").textContent="Änderung speichern";
+  $("#formHint").hidden=!fromColic;openForm();
+}
+$("#addAttack").onclick=()=>{resetForm();openForm()};
 $("#cancelEdit").onclick=resetForm;
 $("#form").addEventListener("submit",async e=>{
   e.preventDefault();
@@ -385,33 +523,40 @@ $("#form").addEventListener("submit",async e=>{
     pain:Number(painEl.value),side:document.querySelector("input[name=side]:checked")?.value||"",
     symptoms:[...symWrap.querySelectorAll("input:checked")].map(i=>i.value),
     helped:$("#f-helped").value.trim(),note:$("#f-note").value.trim()};
+  const prev=editing&&docs.get(editing);
+  if(prev?.log?.length)d.log=prev.log; // keep the colic timeline when editing
   const id=editing||("a-"+Date.now());
   await backend.set(id,d);
-  toast(editing?"Änderung gespeichert":"Anfall gespeichert");resetForm();
+  toast(editing?"Änderung gespeichert":"Anfall gespeichert");resetForm();window.scrollTo({top:0,behavior:"smooth"});
 });
+// what was logged during a colic, as short readable lines
+function logParts(a){
+  const l=a.log||[],out=[];
+  const meds=l.filter(e=>e.type==="med").map(e=>`${e.text} (${hhmm(e.t)})`);
+  const pains=l.filter(e=>e.type==="pain").map(e=>e.v);
+  const steps=l.filter(e=>e.type==="step").map(e=>e.text);
+  if(meds.length)out.push("Medikamente: "+meds.join(", "));
+  if(pains.length>1)out.push("Schmerzverlauf: "+pains.join(" → "));
+  if(steps.length)out.push("Erledigt: "+steps.join(", "));
+  return out;
+}
 function attacks(){return [...docs].filter(([,d])=>d.kind==="attack").sort((a,b)=>b[1].start.localeCompare(a[1].start))}
 function renderList(){
   const list=$("#list"),all=attacks();
-  if(!all.length){list.innerHTML='<p class="empty">Noch keine Anfälle eingetragen. Nach dem nächsten Anfall hier oben ausfüllen, das dauert eine Minute.</p>';return}
+  if(!all.length){list.innerHTML='<p class="empty">Noch keine Anfälle eingetragen. Während einer Kolik einfach unten auf „Kolik“ tippen, danach landet sie automatisch hier.</p>';return}
   list.innerHTML="";
   all.forEach(([id,a])=>{
     const el=document.createElement("div");el.className="entry";
     const tags=(a.symptoms||[]).map(s=>`<span class="tag${RED.has(s)?" red":""}"></span>`).join("");
     el.innerHTML=`<div class="score" aria-label="Schmerz ${a.pain} von 10">${a.pain}</div>
-      <div style="min-width:0"><b class="d"></b><div class="meta"></div><div class="tags">${tags}</div><div class="meta x"></div>
+      <div style="min-width:0"><b class="d"></b><div class="meta"></div><div class="tags">${tags}</div><div class="meta x"></div><div class="meta lg"></div>
       <div class="actions"><button class="btn small ghost e">Bearbeiten</button><button class="btn small ghost r">Löschen</button></div></div>`;
     el.querySelector(".d").textContent=fmtDate(a.start);
     el.querySelector(".meta").textContent=[fmtH(a.hours)==="–"?"":"Dauer "+fmtH(a.hours),a.side].filter(Boolean).join(" · ");
     el.querySelectorAll(".tag").forEach((t,i)=>t.textContent=a.symptoms[i]);
     el.querySelector(".x").textContent=[a.helped&&("Geholfen: "+a.helped),a.note].filter(Boolean).join(" — ");
-    el.querySelector(".e").onclick=()=>{
-      editing=id;$("#f-start").value=a.start;$("#f-hours").value=a.hours??"";painEl.value=a.pain;updPain();
-      document.querySelectorAll("input[name=side]").forEach(r=>r.checked=r.value===a.side);
-      symWrap.querySelectorAll("input").forEach(c=>c.checked=(a.symptoms||[]).includes(c.value));symWrap.onchange();
-      $("#f-helped").value=a.helped||"";$("#f-note").value=a.note||"";
-      $("#formTitle").textContent="Anfall bearbeiten";$("#saveBtn").textContent="Änderung speichern";$("#cancelEdit").hidden=false;
-      $("#formTitle").scrollIntoView({behavior:"smooth",block:"start"});
-    };
+    el.querySelector(".lg").textContent=logParts(a).join(" · ");
+    el.querySelector(".e").onclick=()=>openEdit(id,a,false);
     const r=el.querySelector(".r");
     r.onclick=()=>{if(r.dataset.sure){backend.del(id);toast("Gelöscht")}else{r.dataset.sure=1;r.textContent="Wirklich löschen?";r.style.borderColor="var(--alert)";setTimeout(()=>{if(r.isConnected){delete r.dataset.sure;r.textContent="Löschen";r.style.borderColor=""}},4000)}};
     list.appendChild(el);
@@ -448,7 +593,8 @@ function renderReport(){
     t+=`• ${fmtDate(a.start)} – Schmerz ${a.pain}/10`+(a.hours!=null?`, ${fmtH(a.hours)}`:"")+(a.side?`, ${a.side}`:"")+`\n`;
     if(a.symptoms?.length)t+=`  mit: ${a.symptoms.join(", ")}\n`;
     if(a.helped)t+=`  geholfen: ${a.helped}\n`;
-    if(a.note)t+=`  Notiz: ${a.note}\n`;})}
+    if(a.note)t+=`  Notiz: ${a.note}\n`;
+    logParts(a).forEach(p=>t+=`  ${p}\n`);})}
   const q=$("#questions").value.trim();
   if(q)t+=`\nMEINE FRAGEN\n${q}\n`;
   $("#report").textContent=t;
@@ -482,7 +628,7 @@ function renderPrint({since,sel,ap,ah,aw,sc,label,q}){
       h("td",{textContent:fmtH(a.hours)}),
       h("td",{textContent:a.side||"–"}),
       h("td",{textContent:(a.symptoms||[]).join(", ")||"–"}),
-      h("td",{textContent:[a.helped&&("Geholfen: "+a.helped),a.note].filter(Boolean).join(" — ")||"–"}))))));
+      h("td",{textContent:[a.helped&&("Geholfen: "+a.helped),a.note,...logParts(a)].filter(Boolean).join(" — ")||"–"}))))));
 
   out.append(h("h2",{textContent:"Trinkmenge der letzten 14 Tage"}),
     h("div",{className:"pwater"},Array.from({length:14},(_,i)=>{
@@ -520,18 +666,35 @@ $("#exportJson").onclick=()=>{
   toast("Sicherung gespeichert");
 };
 
-// only accept the three known document shapes, normalised so nothing unexpected reaches the page
-const GOALS=[2000,2500,3000,3500];
+// only accept the known document shapes, normalised so nothing unexpected reaches the page
+// (a running colic is deliberately not restored from a backup)
+const GOALS=[2000,2500,3000,3500],LOGT=new Set(["pain","med","step","sym","note"]);
+function cleanLog(l,str){
+  if(!Array.isArray(l))return [];
+  return l.slice(0,500).flatMap(e=>{
+    if(!e||!Number.isFinite(e.t)||!LOGT.has(e.type))return [];
+    if(e.type==="pain")return Number.isFinite(e.v)?[{t:e.t,type:"pain",v:Math.max(1,Math.min(10,Math.round(e.v)))}]:[];
+    const o={t:e.t,type:e.type,text:str(e.text).slice(0,300)};
+    if(e.type==="step"&&typeof e.step==="string")o.step=e.step.slice(0,40);
+    return [o];
+  });
+}
 function cleanDoc(id,d){
   if(!d||typeof d!=="object")return null;
   const str=v=>typeof v==="string"?v.slice(0,2000):"";
   if(id==="settings"&&d.kind==="settings")return GOALS.includes(d.goalMl)?{kind:"settings",goalMl:d.goalMl}:null;
+  if(id==="plan"&&d.kind==="plan"){
+    const arr=v=>Array.isArray(v)?v.slice(0,50).filter(x=>x&&typeof x==="object"):[];
+    return {kind:"plan",
+      steps:arr(d.steps).filter(s=>str(s.text)).map(s=>({id:str(s.id).slice(0,40)||uid(),text:str(s.text).slice(0,120)})),
+      meds:arr(d.meds).filter(m=>str(m.name)).map(m=>({id:str(m.id).slice(0,40)||uid(),name:str(m.name).slice(0,80),note:str(m.note).slice(0,160)}))};
+  }
   if(/^w-\d{4}-\d{2}-\d{2}$/.test(id)&&d.kind==="water"&&Number.isInteger(d.glasses))
     return {kind:"water",date:id.slice(2),glasses:Math.max(0,Math.min(40,d.glasses))};
   if(/^a-\d+$/.test(id)&&d.kind==="attack"&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(d.start)&&Number.isFinite(d.pain))
     return {kind:"attack",start:d.start.slice(0,16),hours:Number.isFinite(d.hours)?Math.max(0,Math.min(72,d.hours)):null,
       pain:Math.max(1,Math.min(10,Math.round(d.pain))),side:str(d.side),
-      symptoms:Array.isArray(d.symptoms)?d.symptoms.filter(s=>SYMPTOMS.includes(s)):[],helped:str(d.helped),note:str(d.note)};
+      symptoms:Array.isArray(d.symptoms)?d.symptoms.filter(s=>SYMPTOMS.includes(s)):[],helped:str(d.helped),note:str(d.note),log:cleanLog(d.log,str)};
   return null;
 }
 let pendingImport=null;
@@ -568,26 +731,169 @@ const csvCell=v=>{let s=String(v??"");if(/^[=+\-@]/.test(s))s="'"+s;return /[;"\
 $("#exportCsv").onclick=()=>{
   const all=attacks();
   if(!all.length){toast("Noch keine Anfälle eingetragen");return}
-  const rows=[["Datum","Uhrzeit","Dauer (h)","Schmerz (1-10)","Seite","Begleitbeschwerden","Geholfen","Notiz"]];
+  const rows=[["Datum","Uhrzeit","Dauer (h)","Schmerz (1-10)","Seite","Begleitbeschwerden","Geholfen","Notiz","Während der Kolik"]];
   all.forEach(([,a])=>{const [d,t]=a.start.split("T");const [y,m,dd]=d.split("-");
-    rows.push([`${dd}.${m}.${y}`,t,a.hours==null?"":String(a.hours).replace(".",","),a.pain,a.side,(a.symptoms||[]).join(", "),a.helped,a.note])});
+    rows.push([`${dd}.${m}.${y}`,t,a.hours==null?"":String(a.hours).replace(".",","),a.pain,a.side,(a.symptoms||[]).join(", "),a.helped,a.note,logParts(a).join(" | ")])});
   download(`nierenstein-anfaelle-${stamp()}.csv`,"﻿"+rows.map(r=>r.map(csvCell).join(";")).join("\r\n"),"text/csv;charset=utf-8");
   toast("Tabelle gespeichert");
 };
 
-/* ---------- shell ---------- */
-function show(tab){
-  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
-  ["today","log","doc"].forEach(t=>$("#p-"+t).hidden=t!==tab);
-  try{localStorage.setItem(LS+"-tab",tab)}catch(e){}
-  window.scrollTo({top:0});
+/* ---------- colic mode ---------- */
+// "plan" = the person's own checklist + medication list; "episode" = the colic currently running
+const SIDES=["links","rechts","beidseits","Unterbauch/Leiste"];
+const DEFAULT_PLAN={kind:"plan",meds:[],steps:[
+  "Schmerzmittel nehmen, wie vom Arzt verordnet",
+  "Wärme: Wärmflasche oder warmes Bad",
+  "Wenn möglich bewegen, z. B. herumgehen",
+  "Urin durch ein Sieb auffangen, Stein aufheben",
+  "Fieber messen"].map((text,i)=>({id:"s"+i,text}))};
+const getPlan=()=>docs.get("plan")||DEFAULT_PLAN;
+const episode=()=>docs.get("episode")||null;
+const lastOf=(ep,pred)=>ep.events.filter(pred).at(-1);
+const savePlan=p=>backend.set("plan",{kind:"plan",steps:p.steps,meds:p.meds});
+const saveEp=ep=>backend.set("episode",ep);
+function logEvent(ev){
+  const ep=episode();if(!ep)return false;
+  const prev=ep.events.at(-1);
+  // swallow an accidental double tap on the same button
+  if(prev&&prev.type===ev.type&&prev.text===ev.text&&prev.v===ev.v&&Date.now()-prev.t<3000)return false;
+  saveEp({...ep,events:[...ep.events,{t:Date.now(),...ev}]});return true;
 }
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
-$("#goLog").onclick=()=>show("log");
+function evText(e){
+  return {pain:()=>`Schmerz ${e.v}/10 (${PAINWORDS[e.v]})`,med:()=>"Genommen: "+e.text,step:()=>"Erledigt: "+e.text,
+    sym:()=>e.text+" dazugekommen",note:()=>"Notiz: "+e.text}[e.type]();
+}
+// two taps needed for actions that throw something away
+function confirmTap(btn,label,action){
+  if(btn.dataset.sure){delete btn.dataset.sure;action();return}
+  const orig=btn.textContent;btn.dataset.sure=1;btn.textContent=label;btn.style.borderColor="var(--alert)";
+  setTimeout(()=>{if(btn.dataset.sure){delete btn.dataset.sure;btn.textContent=orig;btn.style.borderColor=""}},4000);
+}
+
+// plan editing
+$("#addStep").onsubmit=e=>{e.preventDefault();const t=$("#newStep").value.trim();if(!t)return;
+  const p=getPlan();savePlan({...p,steps:[...p.steps,{id:uid(),text:t}]});$("#newStep").value=""};
+$("#addMed").onsubmit=e=>{e.preventDefault();const n=$("#newMed").value.trim();if(!n){$("#newMed").focus();return}
+  const p=getPlan();savePlan({...p,meds:[...p.meds,{id:uid(),name:n,note:$("#newMedNote").value.trim()}]});
+  $("#newMed").value=$("#newMedNote").value="";toast("Medikament gespeichert")};
+function renderPlanEdit(){
+  const p=getPlan(),ol=$("#planEdit"),ul=$("#medEdit");ol.innerHTML="";ul.innerHTML="";
+  p.steps.forEach((s,i)=>ol.append(h("li",null,h("span",{textContent:s.text}),
+    h("button",{className:"del",type:"button",textContent:"↑",title:"Nach oben",disabled:i===0,
+      onclick:()=>{const st=[...p.steps];[st[i-1],st[i]]=[st[i],st[i-1]];savePlan({...p,steps:st})}}),
+    h("button",{className:"del",type:"button",textContent:"×",title:"Entfernen",
+      onclick:()=>savePlan({...p,steps:p.steps.filter(x=>x.id!==s.id)})}))));
+  if(!p.steps.length)ol.append(h("li",null,h("span",{className:"note",textContent:"Noch keine Schritte."})));
+  p.meds.forEach(m=>ul.append(h("li",null,h("span",null,m.name,m.note?h("small",{textContent:m.note}):null),h("span"),
+    h("button",{className:"del",type:"button",textContent:"×",title:"Entfernen",
+      onclick:()=>savePlan({...p,meds:p.meds.filter(x=>x.id!==m.id)})}))));
+  if(!p.meds.length)ul.append(h("li",null,h("span",{className:"note",textContent:"Noch keine Medikamente eingetragen."})));
+}
+
+// running colic
+$("#startColic").onclick=()=>{
+  let start=Date.now();const v=$("#startAt").value;
+  if(v){const t=new Date(v).getTime();if(t<start&&start-t<72*36e5)start=t}
+  $("#startAt").value="";
+  saveEp({kind:"episode",start,side:"",symptoms:[],events:[]});
+  window.scrollTo({top:0});toast("Kolik gestartet um "+hhmm(start));
+};
+for(let i=1;i<=10;i++)$("#painPad").append(h("button",{type:"button",textContent:i,title:PAINWORDS[i],
+  onclick:()=>{if(logEvent({type:"pain",v:i}))toast(`Schmerz ${i} eingetragen`)}}));
+$("#otherMed").onsubmit=e=>{e.preventDefault();const t=$("#otherMedText").value.trim();if(!t)return;
+  logEvent({type:"med",text:t});$("#otherMedText").value="";toast(t+" eingetragen")};
+$("#liveNote").onsubmit=e=>{e.preventDefault();const t=$("#liveNoteText").value.trim();if(!t)return;
+  logEvent({type:"note",text:t});$("#liveNoteText").value="";toast("Notiz eingetragen")};
+$("#endColic").onclick=async()=>{
+  const ep=episode();if(!ep)return;
+  const now=Date.now(),pains=ep.events.filter(e=>e.type==="pain").map(e=>e.v),id="a-"+now;
+  const a={kind:"attack",start:localISO(ep.start),hours:Math.max(.5,Math.round((now-ep.start)/18e5)/2),
+    pain:pains.length?Math.max(...pains):6,side:ep.side||"",symptoms:ep.symptoms||[],helped:"",
+    note:ep.events.filter(e=>e.type==="note").map(e=>e.text).join("; "),log:ep.events};
+  await backend.set(id,a);await backend.del("episode");
+  toast("Gute Besserung! Kolik gespeichert");
+  go("verlauf",()=>openEdit(id,a,true));
+};
+$("#discardColic").onclick=e=>confirmTap(e.currentTarget,"Wirklich verwerfen?",()=>{backend.del("episode");toast("Verworfen")});
+
+function renderColic(){
+  const ep=episode(),p=getPlan();
+  $("#colicIdle").hidden=!!ep;$("#colicLive").hidden=!ep;
+  renderPlanEdit();
+  if(!ep)return;
+  $("#elapsed").textContent=dur(Date.now()-ep.start);
+  $("#startedAt").textContent="Beginn: "+fmtDate(localISO(ep.start));
+
+  const lp=lastOf(ep,e=>e.type==="pain");
+  $("#painPad").querySelectorAll("button").forEach((b,i)=>b.setAttribute("aria-pressed",lp?.v===i+1));
+  $("#lastPain").textContent=lp?`Zuletzt ${lp.v}/10 um ${hhmm(lp.t)} (${ago(lp.t)}). Neu antippen, wenn sich etwas ändert.`
+    :"Antippen, und wieder, wenn sich etwas ändert.";
+
+  const mb=$("#medButtons");mb.innerHTML="";
+  p.meds.forEach(m=>{const last=lastOf(ep,e=>e.type==="med"&&e.text===m.name);
+    mb.append(h("button",{className:"medbtn",type:"button",onclick:()=>{if(logEvent({type:"med",text:m.name}))toast(`${m.name} eingetragen, ${hhmm(Date.now())}`)}},
+      h("b",{textContent:m.name}),m.note?h("span",{textContent:m.note}):null,
+      h("span",{className:"last",textContent:last?`Zuletzt um ${hhmm(last.t)}, ${ago(last.t)}`:"In dieser Kolik noch nicht genommen"})))});
+  if(!p.meds.length)mb.append(h("p",{className:"note",style:"margin:0",textContent:"Noch keine Medikamente angelegt. Das geht nach der Kolik unter „Meine Medikamente“. Jetzt einfach unten eintippen."}));
+
+  const pc=$("#planCheck");pc.innerHTML="";
+  p.steps.forEach(s=>{const done=lastOf(ep,e=>e.type==="step"&&e.step===s.id);
+    pc.append(h("button",{className:"check",type:"button",ariaPressed:String(!!done),
+      onclick:()=>done?saveEp({...ep,events:ep.events.filter(x=>x!==done)}):logEvent({type:"step",step:s.id,text:s.text})},
+      h("i",{textContent:done?"✓":""}),h("span",null,s.text,done?h("small",{textContent:"erledigt um "+hhmm(done.t)}):null)))});
+  if(!p.steps.length)pc.append(h("p",{className:"note",style:"margin:0",textContent:"Kein Plan angelegt."}));
+
+  const sd=$("#liveSide");sd.className="seg";sd.innerHTML="";
+  SIDES.forEach(s=>sd.append(h("button",{type:"button",textContent:s,ariaPressed:String(ep.side===s),
+    onclick:()=>saveEp({...ep,side:ep.side===s?"":s})})));
+  const sy=$("#liveSym");sy.className="seg";sy.innerHTML="";
+  SYMPTOMS.forEach(s=>{const on=(ep.symptoms||[]).includes(s);
+    sy.append(h("button",{type:"button",textContent:s,ariaPressed:String(on),onclick:()=>{
+      const symptoms=on?ep.symptoms.filter(x=>x!==s):[...(ep.symptoms||[]),s];
+      saveEp({...ep,symptoms,events:on?ep.events:[...ep.events,{t:Date.now(),type:"sym",text:s}]})}}))});
+  $("#liveFever").hidden=!(ep.symptoms||[]).some(s=>RED.has(s));
+
+  const tl=$("#timeline");tl.innerHTML="";
+  [...ep.events].reverse().forEach(e=>tl.append(h("li",null,h("time",{textContent:hhmm(e.t)}),h("span",{textContent:evText(e)}),
+    h("button",{className:"del",type:"button",textContent:"×",title:"Eintrag entfernen",
+      onclick:()=>{saveEp({...ep,events:ep.events.filter(x=>x!==e)});toast("Eintrag entfernt")}}))));
+  tl.append(h("li",null,h("time",{textContent:hhmm(ep.start)}),h("span",{textContent:"Kolik begonnen"}),h("span")));
+}
+
+/* ---------- shell: hash routes, so the phone's back button works ---------- */
+const ROUTES={heute:"today",kolik:"colic",verlauf:"log",arzt:"doc"};
+let currentTab="today",afterRoute=null;
+function route(){
+  currentTab=ROUTES[location.hash.slice(1)]||"today";
+  for(const t of Object.values(ROUTES))$("#p-"+t).hidden=t!==currentTab;
+  document.querySelectorAll(".bottomnav a").forEach(a=>a.dataset.tab===currentTab?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  $("#subtitle").hidden=currentTab!=="today";
+  renderLive();window.scrollTo({top:0});
+  const cb=afterRoute;afterRoute=null;cb?.();
+}
+function go(name,cb){if(location.hash==="#"+name){cb?.();return}afterRoute=cb||null;location.hash=name}
+addEventListener("hashchange",route);
+// tapping the tab you're already on scrolls back to the top
+document.querySelectorAll(".bottomnav a").forEach(a=>a.addEventListener("click",()=>{if(a.dataset.tab===currentTab)window.scrollTo({top:0,behavior:"smooth"})}));
+function renderLive(){
+  const ep=episode();
+  $("#livebar").hidden=!ep||currentTab==="colic";
+  if(ep)$("#livebarText").textContent="Kolik läuft seit "+dur(Date.now()-ep.start);
+  document.querySelector(".bottomnav a.colic").classList.toggle("on",!!ep);
+  $("#goColic").textContent=ep?"Kolik läuft – öffnen":"Kolik? Hier starten";
+}
+// keep the clock and "vor … min" texts fresh while a colic runs
+const tick=()=>{if(episode()){renderColic();renderLive()}};
+setInterval(tick,20000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
+
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2200)}
-function render(){renderWater();renderList();renderReport()}
+function render(){renderWater();renderList();renderReport();renderColic();renderLive()}
+$("#redflagsLive").append($("#redflags").cloneNode(true));$("#redflagsLive .redflags").removeAttribute("id");
 resetForm();
 initStore();
+if(!location.hash&&episode())history.replaceState(null,"","#kolik"); // reopen straight into a running colic
+route();
 // offline support when served as a website (needs https or localhost)
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&isSecureContext)
   addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
