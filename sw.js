@@ -1,7 +1,7 @@
 // Offline support. Only caches the app's own files (and the Google Fonts it uses);
 // diary data lives in the browser's storage and never passes through here.
 // Bump VERSION whenever icons or the manifest change; index.html updates on its own.
-const VERSION = "v1";
+const VERSION = "v2";
 const APP = "tagebuch-app-" + VERSION;
 const FONTS = "tagebuch-fonts";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-32.png"];

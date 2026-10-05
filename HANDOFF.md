@@ -5,8 +5,13 @@ Eine kleine Web-App für Menschen mit wiederkehrenden Nierenstein-Koliken.
 Ziel: Trinkmenge im Alltag festhalten, Kolik-Anfälle dokumentieren und vor dem
 Arzttermin eine Zusammenfassung erstellen. Die App ersetzt keinen Arzt.
 
-Zielgruppe: ältere Person, nutzt es am Handy → große Buttons, gut lesbare Schrift
-(Atkinson Hyperlegible), einfache Sprache, alles auf Deutsch (Österreich).
+Zielgruppe: Erwachsene (ca. 45–55), nutzt es am Handy → große Tippflächen, einfache Sprache,
+alles auf Deutsch (Österreich).
+
+Design: schlicht und hell, immer im hellen Modus (kein Dark Mode). Warmes Off-White (`--bg`),
+weiße Karten mit weichem Schatten statt Rahmen, eingefärbte Knöpfe statt Umrandungen,
+eine Schrift (Figtree). Akzente: Blau `--water` fürs Trinken, Terrakotta `--pain` für die Kolik,
+Grün `--ok` für Erledigtes. Weiße Schrift auf den Akzentfarben erfüllt den Kontrast für große Schrift.
 
 ## Aktueller Stand
 - Datei: `nierenstein-tagebuch.html` (eine einzige Datei, HTML + CSS + JS, keine Libraries)
