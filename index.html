@@ -405,12 +405,11 @@ details summary{cursor:pointer;color:var(--muted);font-weight:600;padding:4px 0}
       <h2>Bericht zum Mitnehmen</h2>
       <label class="field"><span>Meine Fragen an den Arzt</span><textarea id="questions" placeholder="z. B. Welche Steinart habe ich? Soll ich etwas an der Ernährung ändern? Brauche ich eine Steinanalyse?"></textarea></label>
       <div class="report" id="report"></div>
-      <button class="btn primary" id="shareReport"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Bericht teilen</button>
+      <button class="btn primary big" id="sharePdf"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Als PDF teilen</button>
       <div class="row">
-        <button class="btn" id="copy" style="flex:1">Kopieren</button>
-        <button class="btn" id="print" style="flex:1">Drucken / PDF</button>
+        <button class="btn" id="savePdf" style="flex:1">PDF speichern</button>
+        <button class="btn" id="copy" style="flex:1">Text kopieren</button>
       </div>
-      <p class="note" style="margin:0">Für eine PDF-Datei im Druckfenster „Als PDF speichern“ auswählen.</p>
     </div>
   </section>
 
@@ -639,6 +638,7 @@ function renderReport(){
   const q=$("#questions").value.trim();
   if(q)t+=`\nMEINE FRAGEN\n${q}\n`;
   $("#report").textContent=t;
+  reportData={since,sel,ap,ah,aw,sc,q};
   renderPrint({since,sel,ap,ah,aw,sc,label,q});
 }
 
@@ -682,7 +682,121 @@ function renderPrint({since,sel,ap,ah,aw,sc,label,q}){
     ...Array.from({length:5},()=>h("div",{className:"plines"})),
     h("p",{className:"pfoot",textContent:"Selbst geführtes Tagebuch der Patientin bzw. des Patienten. Ersetzt keine ärztliche Untersuchung oder Diagnose."}));
 }
-$("#print").onclick=()=>{renderReport();window.print()};
+/* ---------- PDF report ----------
+   Hand-built PDF, no library: the 14 standard fonts need no embedding, and Helvetica with
+   WinAnsiEncoding covers German text (ä ö ü ß – „ “ Ø ×). Works offline, nothing leaves the phone
+   unless it is shared. */
+let reportData=null;
+const HELV=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const HELVB=[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+const HEXTRA={"ä":[556,556],"ö":[556,611],"ü":[556,611],"Ä":[667,722],"Ö":[778,778],"Ü":[722,722],"ß":[611,611],"é":[556,556],
+  "–":[556,556],"—":[1000,1000],"•":[350,350],"„":[333,500],"“":[333,500],"”":[333,500],"’":[222,278],"…":[1000,1000],"×":[584,584],"Ø":[778,778],"°":[400,400],"·":[278,278]};
+const WIN={"€":128,"‚":130,"„":132,"…":133,"‘":145,"’":146,"“":147,"”":148,"•":149,"–":150,"—":151};
+const pdfClean=s=>String(s).replace(/→/g,"->").replace(/✓/g,"x").replace(/\s+/g," ").trim();
+function tw(s,bold,size){let w=0;for(const ch of s){const c=ch.codePointAt(0);
+  w+=c>=32&&c<=126?(bold?HELVB:HELV)[c-32]:(HEXTRA[ch]?.[bold?1:0]??556)}return w*size/1000}
+function wrap(s,maxW,bold,size){
+  const out=[];let line="";
+  for(let word of pdfClean(s).split(" ").filter(Boolean)){
+    while(tw(word,bold,size)>maxW){let i=word.length-1;while(i>1&&tw(word.slice(0,i),bold,size)>maxW)i--;
+      if(line){out.push(line);line=""}out.push(word.slice(0,i));word=word.slice(i)}
+    const t=line?line+" "+word:word;
+    if(tw(t,bold,size)<=maxW)line=t;else{out.push(line);line=word}
+  }
+  if(line)out.push(line);return out;
+}
+function pdfStr(s){let o="";for(const ch of pdfClean(s)){let c=WIN[ch]??ch.codePointAt(0);if(c>255)c=63;
+  const b=String.fromCharCode(c);o+=b==="("||b===")"||b==="\\"?"\\"+b:b}return "("+o+")"}
+function buildPdf(pages,title){
+  const objs=["<< /Type /Catalog /Pages 2 0 R >>","",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>",
+    `<< /Title ${pdfStr(title)} /Producer (Nierenstein-Tagebuch) >>`];
+  const kids=[];
+  pages.forEach(c=>{objs.push(`<< /Length ${c.length} >>\nstream\n${c}\nendstream`);
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${objs.length} 0 R >>`);
+    kids.push(objs.length)});
+  objs[1]=`<< /Type /Pages /Kids [${kids.map(k=>k+" 0 R").join(" ")}] /Count ${kids.length} >>`;
+  let out="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";const offs=[];
+  objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+  const xref=out.length;
+  out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("");
+  out+=`trailer\n<< /Size ${objs.length+1} /Root 1 0 R /Info 5 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Uint8Array.from(out,ch=>ch.charCodeAt(0));
+}
+function makeReportPdf(){
+  renderReport();
+  const {since,sel,ap,ah,aw,sc,q}=reportData;
+  const W=595,H=842,M=50,CW=W-2*M,pages=[];let c="",y=H-M,pageNo=1;
+  const COL={ink:"0.15 0.15 0.17",muted:"0.42 0.42 0.45",water:"0.18 0.5 0.65",pain:"0.78 0.36 0.25",line:"0.86 0.85 0.83",soft:"0.95 0.94 0.92"};
+  const f=n=>n.toFixed(1);
+  const text=(s,x,base,size,bold,color)=>{c+=`BT /${bold?"F2":"F1"} ${size} Tf ${COL[color||"ink"]} rg ${f(x)} ${f(base)} Td ${pdfStr(s)} Tj ET\n`};
+  const rect=(x,yy,w,hh,color)=>{c+=`${COL[color]} rg ${f(x)} ${f(yy)} ${f(w)} ${f(hh)} re f\n`};
+  const hline=(yy,x1=M,x2=W-M,width=.6)=>{c+=`${COL.line} RG ${width} w ${f(x1)} ${f(yy)} m ${f(x2)} ${f(yy)} l S\n`};
+  const footer=()=>text(`Nierenstein-Tagebuch · Seite ${pageNo}`,M,28,8,false,"muted");
+  const ensure=need=>{if(y-need<M+10){footer();pages.push(c);c="";y=H-M;pageNo++}};
+  const para=(s,{size=10.5,bold=false,color="ink",indent=0,lh=1.4}={})=>{
+    for(const part of String(s).split("\n"))  // keep the user's own line breaks
+      for(const line of wrap(part,CW-indent,bold,size)){ensure(size*lh);text(line,M+indent,y-size,size,bold,color);y-=size*lh}};
+  // keep = space needed below the heading so it never ends up alone at the bottom of a page
+  const heading=(s,keep=60)=>{ensure(keep);y-=16;text(s,M,y-13,13,true);y-=20;hline(y,M,W-M,1);y-=10};
+  const atTop=()=>y>=H-M-1;
+
+  // title block
+  text("Nierenstein-Tagebuch",M,y-20,20,true);y-=28;
+  text("Übersicht für den Arzt",M,y-12,12,false,"water");y-=20;
+  const label={30:"letzte 30 Tage",90:"letzte 3 Monate",365:"letzte 12 Monate"}[rangeDays];
+  text(`Zeitraum: ${label} (${shortDate(since)} – ${shortDate(new Date())}) · erstellt am ${shortDate(new Date())}`,M,y-9.5,9.5,false,"muted");y-=26;
+
+  // key figures
+  const stats=[[String(sel.length),sel.length===1?"Kolik-Anfall":"Kolik-Anfälle"],
+    [ap==null?"–":ap.toFixed(1).replace(".",",")+" / 10","Ø Schmerzstärke"],
+    [ah==null?"–":fmtH(ah),"Ø Dauer"],[aw==null?"–":fmtL(aw)+" l","Ø Trinken pro Tag"]];
+  const bw=(CW-3*8)/4;
+  stats.forEach(([v,l],i)=>{const x=M+i*(bw+8);rect(x,y-54,bw,54,"soft");text(v,x+10,y-24,16,true);text(l,x+10,y-42,8.5,false,"muted")});
+  y-=68;
+  if(sc.length){para("Begleitbeschwerden: "+sc.map(([s,n])=>`${s} (${n}×)`).join(", "),{size:10})}
+
+  heading("Einzelne Anfälle");
+  if(!sel.length)para("Keine Anfälle in diesem Zeitraum eingetragen.",{color:"muted"});
+  sel.forEach((a,i)=>{
+    ensure(48);
+    if(i&&!atTop())hline(y+6);
+    para(`${fmtDate(a.start)}  ·  Schmerz ${a.pain}/10`,{size:11,bold:true});
+    const meta=[a.hours!=null&&("Dauer "+fmtH(a.hours)),a.side&&("Seite: "+a.side)].filter(Boolean).join("  ·  ");
+    if(meta)para(meta,{size:10,color:"muted"});
+    if(a.symptoms?.length)para("Beschwerden: "+a.symptoms.join(", "),{size:10});
+    if(a.helped)para("Geholfen: "+a.helped,{size:10});
+    if(a.note)para("Notiz: "+a.note,{size:10});
+    logParts(a).forEach(p=>para(p,{size:10}));
+    y-=10;
+  });
+
+  heading("Trinkmenge der letzten 14 Tage");
+  const dw=(CW-6*6)/7;
+  for(let row=0;row<2;row++){ensure(44);
+    for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-14+row*7+i);const w=docs.get("w-"+dayKey(d));const x=M+i*(dw+6);
+      rect(x,y-38,dw,38,"soft");
+      text(d.toLocaleDateString("de-AT",{weekday:"short",day:"numeric",month:"numeric"}),x+6,y-13,8,false,"muted");
+      text(w?fmtL(w.glasses*GLASS)+" l":"–",x+6,y-29,10.5,true,w?"water":"muted")}
+    y-=44}
+
+  if(q){heading("Meine Fragen");para(q)}
+  heading("Notizen vom Arztgespräch",200); // lines + disclaimer stay together on one page
+  for(let i=0;i<5;i++){y-=26;hline(y)}
+  y-=14;para("Selbst geführtes Tagebuch. Ersetzt keine ärztliche Untersuchung oder Diagnose.",{size:8.5,color:"muted"});
+  footer();pages.push(c);
+  return buildPdf(pages,"Nierenstein-Tagebuch – Übersicht");
+}
+const pdfName=()=>`Nierenstein-Bericht-${stamp()}.pdf`;
+$("#sharePdf").onclick=async()=>{
+  const file=new File([makeReportPdf()],pdfName(),{type:"application/pdf"});
+  if(navigator.canShare?.({files:[file]})){
+    try{await navigator.share({files:[file],title:"Nierenstein-Bericht"});return}catch(e){if(e.name==="AbortError")return}
+  }
+  download(file.name,file,"application/pdf");toast("Teilen geht hier nicht – PDF wurde gespeichert");
+};
+$("#savePdf").onclick=()=>{download(pdfName(),makeReportPdf(),"application/pdf");toast("PDF gespeichert")};
 $("#copy").onclick=()=>{
   const text=$("#report").textContent;
   const fallback=()=>{const r=document.createRange();r.selectNodeContents($("#report"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Text markiert – jetzt kopieren")};
@@ -872,7 +986,6 @@ function colicStatus(){
     (ep.symptoms||[]).length?`Dazu: ${ep.symptoms.join(", ")}.`:""].filter(Boolean).join("\n");
 }
 $("#shareColic").onclick=()=>shareText(colicStatus());
-$("#shareReport").onclick=()=>{renderReport();shareText($("#report").textContent)};
 $("#discardColic").onclick=e=>confirmTap(e.currentTarget,"Wirklich verwerfen?",()=>{backend.del("episode");toast("Verworfen")});
 
 function renderColic(){

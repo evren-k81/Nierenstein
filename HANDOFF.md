@@ -103,6 +103,12 @@ dort lässt sich ein anderes Backend einhängen.
   „Stand teilen“ während der Kolik (Dauer, letzter Schmerz, Medikamente mit Uhrzeit, Beschwerden)
   und „Bericht teilen“ beim Arztbericht.
 - Anfälle: Liste oben, Formular „+ Nachtragen“ eingeklappt.
+- **Arztbericht als echte PDF** (`makeReportPdf()` / `buildPdf()`): selbst erzeugt, ohne Bibliothek
+  und offline. Standardschrift Helvetica + WinAnsiEncoding (deckt ä ö ü ß – „ “ Ø × °), Breiten-Tabellen
+  `HELV`/`HELVB` für den Zeilenumbruch, automatische Seitenumbrüche. „Als PDF teilen“ nutzt
+  `navigator.share({files})` (WhatsApp, Mail …), sonst Download; „PDF speichern“ lädt direkt herunter.
+  Zeichen außerhalb von WinAnsi werden ersetzt (→ wird „->“, Unbekanntes „?“).
+  Der Drucken-Knopf ist entfernt (am Handy unzuverlässig); die `@media print`-Ansicht bleibt für Strg+P am PC.
 
 ## Nächste Schritte (Wünsche)
 1. ~~Alles sichern / wiederherstellen~~ erledigt
