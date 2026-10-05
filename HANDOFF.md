@@ -80,8 +80,12 @@ dort lässt sich ein anderes Backend einhängen.
 - Wichtig: Speicher hängt an der genauen Adresse (Domain + Pfad). Adresse nach dem Launch
   nicht mehr ändern, sonst vorher Sicherung speichern und am neuen Ort laden.
 
-- **Navigation neu:** Leiste unten (Heute · Kolik · Verlauf · Arzt), Routen über `#heute`,
-  `#kolik`, `#verlauf`, `#arzt` → Zurück-Taste am Handy funktioniert. Bugfix: `.panel{display:grid}`
+- **Zwei Bereiche (einfache Bedienung):**
+  - *Tagebuch* für den Alltag – Leiste unten mit nur zwei Knöpfen: Trinken (`#heute`) und Kolik (`#kolik`).
+  - *Verwaltung* – Knopf oben rechts (`#verwaltung`), Menü mit Kolik-Plan & Medikamente (`#plan`),
+    Anfälle (`#anfaelle`, alt `#verlauf`), Bericht für den Arzt (`#arzt`), Einstellungen & Sicherung
+    (`#daten`, inkl. Trinkziel). Innerhalb der Verwaltung wird der Knopf zu „✓ Fertig“ → zurück ins Tagebuch.
+  - Zurück-Taste am Handy funktioniert über die Hash-Routen. Bugfix: `.panel{display:grid}`
   hatte das `hidden`-Attribut überschrieben, alle Bereiche waren gleichzeitig sichtbar
   (jetzt globale Regel `[hidden]{display:none!important}`).
 - **Kolik-Modus:** eigener Plan (Checkliste) + eigene Medikamente mit Notiz (keine Dosierungen).
@@ -90,7 +94,10 @@ dort lässt sich ein anderes Backend einhängen.
   Läuft eine Kolik, öffnet die App direkt dort; auf anderen Tabs erscheint ein Balken.
   „Kolik ist vorbei“ → Anfall mit Dauer, stärkstem Schmerz und `log`, Formular öffnet sich zum Ergänzen.
   Bericht, Druck und CSV zeigen Medikamente mit Uhrzeit, Schmerzverlauf und erledigte Schritte.
-- Verlauf-Tab: Liste oben, Formular „+ Nachtragen“ eingeklappt.
+- **Teilen** über das Teilen-Menü des Handys (`navigator.share`, sonst Kopieren):
+  „Stand teilen“ während der Kolik (Dauer, letzter Schmerz, Medikamente mit Uhrzeit, Beschwerden)
+  und „Bericht teilen“ beim Arztbericht.
+- Anfälle: Liste oben, Formular „+ Nachtragen“ eingeklappt.
 
 ## Nächste Schritte (Wünsche)
 1. ~~Alles sichern / wiederherstellen~~ erledigt

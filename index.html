@@ -39,18 +39,30 @@
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));display:grid;gap:18px}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
-h1{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
+h1{font-size:clamp(1.4rem,6vw,1.75rem);font-weight:800;letter-spacing:-.01em}
 h2{font-size:1.25rem;font-weight:600}
 .sub{color:var(--muted);margin:4px 0 0}
 /* bottom navigation: thumb reach, icon + label */
 .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
-.bottomnav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.bottomnav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .bottomnav a{position:relative;display:grid;justify-items:center;align-content:center;gap:2px;min-height:58px;padding:4px 2px;border-radius:14px;color:var(--muted);text-decoration:none;font-weight:700;font-size:.82rem}
 .bottomnav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .bottomnav a[aria-current="page"]{color:var(--ink);background:var(--bg)}
 .bottomnav a.colic{color:var(--pain)}
 .bottomnav a.colic[aria-current="page"]{background:var(--pain-soft)}
 .bottomnav a.colic.on::after{content:"";position:absolute;top:6px;right:calc(50% - 22px);width:10px;height:10px;border-radius:50%;background:var(--pain);box-shadow:0 0 0 2px var(--surface)}
+.bottomnav a{grid-template-columns:auto auto;justify-content:center;column-gap:8px;font-size:1rem}
+/* header with the way into the admin area */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.adminlink{display:inline-flex;align-items:center;gap:6px;flex:none;border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;min-height:44px;color:var(--muted);text-decoration:none;font-weight:700;font-size:.9rem;background:var(--surface)}
+.adminlink svg,.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.menu{display:grid;gap:10px}
+.menu a{display:grid;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 44px 16px 18px;color:var(--ink);text-decoration:none;position:relative;min-height:72px}
+.menu a::after{content:"›";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:1.8rem;color:var(--muted)}
+.menu b{font-size:1.1rem}
+.menu span{color:var(--muted);font-size:.9rem}
+.back{justify-self:start;color:var(--muted);font-weight:700;text-decoration:none;padding:6px 0;min-height:40px}
+a{color:var(--water)}
 .livebar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--pain);color:#fff;border-radius:var(--r);padding:12px 16px;font-weight:700;text-decoration:none;position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:6}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--water);outline-offset:2px}
@@ -180,35 +192,28 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
 <body>
 
 <div class="wrap">
-  <header>
-    <h1>Nierenstein-Tagebuch</h1>
-    <p class="sub" id="subtitle">Trinken, Anfälle, und alles Wichtige für den nächsten Arzttermin.</p>
+  <header class="top">
+    <div>
+      <h1 id="pageTitle">Nierenstein-Tagebuch</h1>
+      <p class="sub" id="subtitle">Trinken, Koliken und alles Wichtige für den Arzt.</p>
+    </div>
+    <a class="adminlink" href="#verwaltung" id="adminLink"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span id="adminLabel">Verwaltung</span></a>
   </header>
 
   <a class="livebar" id="livebar" href="#kolik" hidden><span id="livebarText">Kolik läuft</span><span aria-hidden="true">Öffnen →</span></a>
 
-  <!-- HEUTE -->
+  <!-- ======================= TAGEBUCH ======================= -->
+
+  <!-- TRINKEN -->
   <section class="panel" id="p-today">
     <div class="card">
-      <div class="water-head">
-        <div>
-          <div class="label">Heute getrunken</div>
-          <div class="liters" id="liters">0,00 <small>Liter</small></div>
-        </div>
-        <div class="goalset">
-          <label for="goal">Tagesziel</label>
-          <select id="goal">
-            <option value="2000">2,0 l</option><option value="2500">2,5 l</option>
-            <option value="3000">3,0 l</option><option value="3500">3,5 l</option>
-          </select>
-        </div>
-      </div>
+      <div class="label">Heute getrunken</div>
+      <div class="liters" id="liters">0,00 <small>Liter</small></div>
       <div class="glasses" id="glasses" aria-hidden="true"></div>
       <div class="row">
-        <button class="btn primary" id="addGlass">+ 1 Glas (250 ml)</button>
+        <button class="btn primary big" id="addGlass" style="width:auto">+ 1 Glas (250 ml)</button>
         <button class="btn ghost" id="removeGlass" aria-label="Ein Glas abziehen">− 1</button>
       </div>
-      <p class="note">Das Tagesziel bitte mit dem Arzt absprechen, bei manchen Herz- oder Nierenerkrankungen gelten andere Mengen.</p>
     </div>
 
     <div class="card">
@@ -232,49 +237,30 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
 
   <!-- KOLIK -->
   <section class="panel" id="p-colic" hidden>
-    <!-- no colic running: start + own plan -->
     <div class="panel" id="colicIdle">
       <div class="card">
         <h2>Kolik beginnt?</h2>
-        <p class="note" style="margin:0">Auf Start tippen. Die App merkt sich die Uhrzeit und zeigt deinen Plan. Schmerz, Medikamente und alles andere dann einfach antippen.</p>
+        <p class="note" style="margin:0">Auf Start tippen. Danach einfach antippen: Schmerz, Medikamente, was du gemacht hast.</p>
         <button class="btn pain big" id="startColic">Kolik starten</button>
         <details>
           <summary>Hat schon früher angefangen?</summary>
           <label class="field"><span>Beginn</span><input type="datetime-local" id="startAt"></label>
         </details>
       </div>
-      <div class="card">
-        <h2>Mein Plan bei einer Kolik</h2>
-        <p class="note" style="margin:0">Schritte, die du während einer Kolik abhaken willst. Am besten mit dem Arzt absprechen.</p>
-        <ol class="editlist" id="planEdit"></ol>
-        <form class="addrow" id="addStep">
-          <input type="text" id="newStep" maxlength="120" placeholder="Neuer Schritt, z. B. Wärmflasche" aria-label="Neuer Schritt">
-          <button class="btn">Hinzufügen</button>
-        </form>
-      </div>
-      <div class="card">
-        <h2>Meine Medikamente</h2>
-        <p class="note" style="margin:0">Name und was der Arzt dazu gesagt hat. Die App gibt keine Dosierungen vor.</p>
-        <ul class="editlist" id="medEdit"></ul>
-        <form class="stack" id="addMed">
-          <input type="text" id="newMed" maxlength="80" placeholder="Name des Medikaments" aria-label="Name des Medikaments">
-          <input type="text" id="newMedNote" maxlength="160" placeholder="Notiz, z. B. was der Arzt gesagt hat (optional)" aria-label="Notiz zum Medikament">
-          <button class="btn">Medikament hinzufügen</button>
-        </form>
-      </div>
+      <p class="note" style="margin:0;text-align:center">Plan und Medikamente einrichten: <a href="#plan">Verwaltung → Kolik-Plan</a></p>
     </div>
 
-    <!-- colic running -->
     <div class="panel" id="colicLive" hidden>
       <div class="card">
         <div class="label">Kolik läuft seit</div>
         <div class="elapsed" id="elapsed">0:00 h</div>
         <div class="note" id="startedAt"></div>
+        <button class="btn" id="shareColic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Stand teilen, z. B. per WhatsApp</button>
       </div>
       <div class="card">
         <h2>Wie stark ist der Schmerz jetzt?</h2>
         <div class="painpad" id="painPad"></div>
-        <p class="note" style="margin:0" id="lastPain">Immer wieder antippen, wenn sich etwas ändert.</p>
+        <p class="note" style="margin:0" id="lastPain"></p>
       </div>
       <div class="card">
         <h2>Medikament genommen</h2>
@@ -312,8 +298,44 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
     </div>
   </section>
 
-  <!-- VERLAUF -->
+  <!-- ======================= VERWALTUNG ======================= -->
+
+  <section class="panel" id="p-admin" hidden>
+    <nav class="menu" aria-label="Verwaltung">
+      <a href="#plan"><b>Kolik-Plan &amp; Medikamente</b><span>Was während einer Kolik angezeigt wird</span></a>
+      <a href="#anfaelle"><b>Anfälle</b><span>Alle Koliken ansehen, bearbeiten, nachtragen</span></a>
+      <a href="#arzt"><b>Bericht für den Arzt</b><span>Zusammenfassung teilen, kopieren oder drucken</span></a>
+      <a href="#daten"><b>Einstellungen &amp; Sicherung</b><span>Trinkziel, Daten sichern und laden</span></a>
+    </nav>
+  </section>
+
+  <!-- PLAN -->
+  <section class="panel" id="p-plan" hidden>
+    <a class="back" href="#verwaltung">← Verwaltung</a>
+    <div class="card">
+      <h2>Mein Plan bei einer Kolik</h2>
+      <p class="note" style="margin:0">Schritte, die während einer Kolik zum Abhaken angezeigt werden. Am besten mit dem Arzt absprechen.</p>
+      <ol class="editlist" id="planEdit"></ol>
+      <form class="addrow" id="addStep">
+        <input type="text" id="newStep" maxlength="120" placeholder="Neuer Schritt, z. B. Wärmflasche" aria-label="Neuer Schritt">
+        <button class="btn">Hinzufügen</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Meine Medikamente</h2>
+      <p class="note" style="margin:0">Erscheinen während einer Kolik als Knopf „genommen“. Name und was der Arzt dazu gesagt hat, die App gibt keine Dosierungen vor.</p>
+      <ul class="editlist" id="medEdit"></ul>
+      <form class="stack" id="addMed">
+        <input type="text" id="newMed" maxlength="80" placeholder="Name des Medikaments" aria-label="Name des Medikaments">
+        <input type="text" id="newMedNote" maxlength="160" placeholder="Notiz, z. B. was der Arzt gesagt hat (optional)" aria-label="Notiz zum Medikament">
+        <button class="btn">Medikament hinzufügen</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ANFÄLLE -->
   <section class="panel" id="p-log" hidden>
+    <a class="back" href="#verwaltung">← Verwaltung</a>
     <div class="card">
       <div class="cardhead"><h2>Bisherige Anfälle</h2><button class="btn small" id="addAttack">+ Nachtragen</button></div>
       <div id="list"><p class="empty">Noch keine Anfälle eingetragen.</p></div>
@@ -346,7 +368,7 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
           <div class="chips" id="f-sym"></div>
         </div>
         <div class="warn" id="feverWarn" hidden><strong>Fieber oder Schüttelfrost bei einer Kolik</strong> kann auf eine Infektion hinter dem Stein hindeuten. Bitte heute noch ärztlich abklären lassen oder 1450 anrufen.</div>
-        <label class="field"><span>Was hat geholfen?</span><input type="text" id="f-helped" placeholder="z. B. Schmerzmittel, Wärme, Bewegung" style="border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px"></label>
+        <label class="field"><span>Was hat geholfen?</span><input type="text" id="f-helped" placeholder="z. B. Schmerzmittel, Wärme, Bewegung"></label>
         <label class="field"><span>Notizen</span><textarea id="f-note" placeholder="Wenig getrunken? Besonderes gegessen? Stein abgegangen?"></textarea></label>
         <div class="row">
           <button class="btn primary" type="submit" id="saveBtn">Anfall speichern</button>
@@ -358,6 +380,7 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
 
   <!-- ARZT -->
   <section class="panel" id="p-doc" hidden>
+    <a class="back" href="#verwaltung">← Verwaltung</a>
     <div class="card">
       <div class="water-head">
         <h2>Zusammenfassung</h2>
@@ -376,14 +399,30 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
     </div>
     <div class="card">
       <h2>Bericht zum Mitnehmen</h2>
-      <p class="note" style="margin:0">Kopieren und dem Arzt zeigen oder schicken. Darunter Platz für eigene Fragen.</p>
       <label class="field"><span>Meine Fragen an den Arzt</span><textarea id="questions" placeholder="z. B. Welche Steinart habe ich? Soll ich etwas an der Ernährung ändern? Brauche ich eine Steinanalyse?"></textarea></label>
       <div class="report" id="report"></div>
+      <button class="btn primary" id="shareReport"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Bericht teilen</button>
       <div class="row">
-        <button class="btn primary" id="copy">Bericht kopieren</button>
-        <button class="btn" id="print">Drucken / PDF</button>
+        <button class="btn" id="copy" style="flex:1">Kopieren</button>
+        <button class="btn" id="print" style="flex:1">Drucken / PDF</button>
       </div>
       <p class="note" style="margin:0">Für eine PDF-Datei im Druckfenster „Als PDF speichern“ auswählen.</p>
+    </div>
+  </section>
+
+  <!-- EINSTELLUNGEN & SICHERUNG -->
+  <section class="panel" id="p-data" hidden>
+    <a class="back" href="#verwaltung">← Verwaltung</a>
+    <div class="card">
+      <h2>Trinkziel pro Tag</h2>
+      <div class="goalset">
+        <label for="goal">Tagesziel</label>
+        <select id="goal">
+          <option value="2000">2,0 l</option><option value="2500">2,5 l</option>
+          <option value="3000">3,0 l</option><option value="3500">3,5 l</option>
+        </select>
+      </div>
+      <p class="note" style="margin:0">Bitte mit dem Arzt absprechen, bei manchen Herz- oder Nierenerkrankungen gelten andere Mengen.</p>
     </div>
     <div class="card">
       <h2>Daten sichern</h2>
@@ -404,11 +443,9 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;padding:6px 0}
     </div>
   </section>
 </div>
-<nav class="bottomnav" aria-label="Bereiche"><div>
-  <a href="#heute" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3z"/></svg>Heute</a>
+<nav class="bottomnav" aria-label="Tagebuch"><div>
+  <a href="#heute" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3z"/></svg>Trinken</a>
   <a href="#kolik" data-tab="colic" class="colic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Kolik</a>
-  <a href="#verlauf" data-tab="log"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Verlauf</a>
-  <a href="#arzt" data-tab="doc"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M12 8v6M9 17h6"/></svg>Arzt</a>
 </div></nav>
 <div class="toast" id="toast" hidden></div>
 <section id="printout" aria-hidden="true"></section>
@@ -582,7 +619,7 @@ function renderReport(){
   $("#st-water").textContent=aw==null?"–":fmtL(aw)+" l";
   const label={30:"letzten 30 Tagen",90:"letzten 3 Monaten",365:"letzten 12 Monaten"}[rangeDays];
   let t=`NIERENSTEIN-TAGEBUCH – Übersicht\nErstellt am ${new Date().toLocaleDateString("de-AT")}\n\n`;
-  t+=`In den ${label}: ${sel.length} Kolik-Anfall/Anfälle\n`;
+  t+=`In den ${label}: ${sel.length} ${sel.length===1?"Kolik-Anfall":"Kolik-Anfälle"}\n`;
   if(ap!=null)t+=`Durchschnittliche Schmerzstärke: ${ap.toFixed(1).replace(".",",")} von 10\n`;
   if(ah!=null)t+=`Durchschnittliche Dauer: ${fmtH(ah)}\n`;
   t+=`Trinkmenge (Ø der letzten 14 Tage mit Eintrag): ${aw==null?"keine Einträge":fmtL(aw)+" l pro Tag"}\n`;
@@ -812,8 +849,26 @@ $("#endColic").onclick=async()=>{
     note:ep.events.filter(e=>e.type==="note").map(e=>e.text).join("; "),log:ep.events};
   await backend.set(id,a);await backend.del("episode");
   toast("Gute Besserung! Kolik gespeichert");
-  go("verlauf",()=>openEdit(id,a,true));
+  go("anfaelle",()=>openEdit(id,a,true));
 };
+// share via the phone's own share sheet (WhatsApp, SMS, …); falls back to copying
+async function shareText(text){
+  if(navigator.share){try{await navigator.share({text});return}catch(e){if(e.name==="AbortError")return}}
+  try{await navigator.clipboard.writeText(text);toast("Text kopiert – jetzt in WhatsApp einfügen")}catch(e){toast("Teilen hat nicht geklappt")}
+}
+function colicStatus(){
+  const ep=episode();if(!ep)return "";
+  const lp=lastOf(ep,e=>e.type==="pain"),meds=ep.events.filter(e=>e.type==="med");
+  const red=(ep.symptoms||[]).filter(s=>RED.has(s));
+  return [red.length?`Achtung: ${red.join(" und ")}!`:"",
+    `Ich habe seit ${dur(Date.now()-ep.start)} eine Nierenkolik (Beginn ${hhmm(ep.start)} Uhr).`,
+    lp?`Schmerz zuletzt ${lp.v} von 10 (um ${hhmm(lp.t)} Uhr).`:"",
+    meds.length?`Genommen: ${meds.map(e=>`${e.text} um ${hhmm(e.t)}`).join(", ")}.`:"Noch kein Medikament genommen.",
+    ep.side?`Schmerz ${ep.side==="Unterbauch/Leiste"?"im Unterbauch/Leiste":ep.side}.`:"",
+    (ep.symptoms||[]).length?`Dazu: ${ep.symptoms.join(", ")}.`:""].filter(Boolean).join("\n");
+}
+$("#shareColic").onclick=()=>shareText(colicStatus());
+$("#shareReport").onclick=()=>{renderReport();shareText($("#report").textContent)};
 $("#discardColic").onclick=e=>confirmTap(e.currentTarget,"Wirklich verwerfen?",()=>{backend.del("episode");toast("Verworfen")});
 
 function renderColic(){
@@ -834,14 +889,14 @@ function renderColic(){
     mb.append(h("button",{className:"medbtn",type:"button",onclick:()=>{if(logEvent({type:"med",text:m.name}))toast(`${m.name} eingetragen, ${hhmm(Date.now())}`)}},
       h("b",{textContent:m.name}),m.note?h("span",{textContent:m.note}):null,
       h("span",{className:"last",textContent:last?`Zuletzt um ${hhmm(last.t)}, ${ago(last.t)}`:"In dieser Kolik noch nicht genommen"})))});
-  if(!p.meds.length)mb.append(h("p",{className:"note",style:"margin:0",textContent:"Noch keine Medikamente angelegt. Das geht nach der Kolik unter „Meine Medikamente“. Jetzt einfach unten eintippen."}));
+  if(!p.meds.length)mb.append(h("p",{className:"note",style:"margin:0",textContent:"Noch keine Medikamente angelegt (geht später unter Verwaltung → Kolik-Plan). Jetzt einfach unten eintippen."}));
 
   const pc=$("#planCheck");pc.innerHTML="";
   p.steps.forEach(s=>{const done=lastOf(ep,e=>e.type==="step"&&e.step===s.id);
     pc.append(h("button",{className:"check",type:"button",ariaPressed:String(!!done),
       onclick:()=>done?saveEp({...ep,events:ep.events.filter(x=>x!==done)}):logEvent({type:"step",step:s.id,text:s.text})},
       h("i",{textContent:done?"✓":""}),h("span",null,s.text,done?h("small",{textContent:"erledigt um "+hhmm(done.t)}):null)))});
-  if(!p.steps.length)pc.append(h("p",{className:"note",style:"margin:0",textContent:"Kein Plan angelegt."}));
+  if(!p.steps.length)pc.append(h("p",{className:"note",style:"margin:0",textContent:"Kein Plan angelegt (Verwaltung → Kolik-Plan)."}));
 
   const sd=$("#liveSide");sd.className="seg";sd.innerHTML="";
   SIDES.forEach(s=>sd.append(h("button",{type:"button",textContent:s,ariaPressed:String(ep.side===s),
@@ -861,12 +916,20 @@ function renderColic(){
 }
 
 /* ---------- shell: hash routes, so the phone's back button works ---------- */
-const ROUTES={heute:"today",kolik:"colic",verlauf:"log",arzt:"doc"};
+// two areas: the diary (Trinken, Kolik) for everyday use, and Verwaltung for setting up and reports
+const ROUTES={heute:"today",kolik:"colic",verwaltung:"admin",plan:"plan",anfaelle:"log",verlauf:"log",arzt:"doc",daten:"data"};
+const ADMIN=new Set(["admin","plan","log","doc","data"]);
 let currentTab="today",afterRoute=null;
 function route(){
   currentTab=ROUTES[location.hash.slice(1)]||"today";
-  for(const t of Object.values(ROUTES))$("#p-"+t).hidden=t!==currentTab;
+  for(const t of new Set(Object.values(ROUTES)))$("#p-"+t).hidden=t!==currentTab;
   document.querySelectorAll(".bottomnav a").forEach(a=>a.dataset.tab===currentTab?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  const admin=ADMIN.has(currentTab);
+  // inside Verwaltung the same button becomes the way back to the diary
+  $("#adminLink").href=admin?"#heute":"#verwaltung";
+  $("#adminLabel").textContent=admin?"✓ Fertig":"Verwaltung";
+  $("#adminLink svg").style.display=admin?"none":"";
+  $("#pageTitle").textContent=admin?"Verwaltung":"Nierenstein-Tagebuch";
   $("#subtitle").hidden=currentTab!=="today";
   renderLive();window.scrollTo({top:0});
   const cb=afterRoute;afterRoute=null;cb?.();
